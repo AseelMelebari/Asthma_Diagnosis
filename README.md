@@ -1,49 +1,86 @@
-# 🫁 Asthma Diagnosis Prediction
+# Asthma Risk Prediction API
 
-## 📌 Overview
-This project is an end-to-end Machine Learning system that predicts whether a patient has asthma or not using patient health data.
+An educational machine-learning deployment built with FastAPI and scikit-learn. It is intended for testing AI ethics, governance, robustness, and explainability tools.
 
-The project demonstrates how to build, preprocess, train, and evaluate a classification model using structured data and machine learning techniques.
+> **Medical disclaimer:** This project is not a medical device and must not be used for diagnosis, treatment, emergency decisions, or other clinical purposes.
 
-## 🧠 Technologies Used
-Python  
-Pandas  
-Scikit-learn  
-Neural Networks (MLPClassifier)  
-ColumnTransformer  
-One-Hot Encoding  
-StandardScaler  
+## Files
 
-## ⚙️ Features
-Data loading and preprocessing  
-Handling missing values using imputation  
-Feature scaling for numerical data  
-Encoding categorical features using One-Hot Encoding  
-Building a full machine learning pipeline  
-Training a neural network model  
-Model evaluation using accuracy and classification metrics  
-Sample prediction for new input  
+- `main.py` — FastAPI application
+- `asthma_model.joblib` — trained scikit-learn pipeline
+- `requirements.txt` — Python dependencies
+- `railway.json` — Railway deployment configuration
+- `runtime.txt` — Python runtime version
+- `static/index.html` — simple browser interface
 
-## 📥 Dataset
-The dataset is not included in this repository.
+## Run locally
 
-Place the dataset file in the project folder with the name:  
-`asthma_dataset.csv`
+```bash
+python -m venv .venv
+```
 
-## 📊 Dataset Information
-Type: Medical structured dataset  
-Target: Asthma Diagnosis (Yes / No)  
-Features: Patient health-related attributes (numerical and categorical)  
+Activate the environment:
 
-## 📈 Model Performance
-The model was trained using a train-test split approach.
+```bash
+# Windows PowerShell
+.venv\Scripts\Activate.ps1
 
-## 🔄 Machine Learning Pipeline
-This project follows a complete machine learning workflow:
+# macOS/Linux
+source .venv/bin/activate
+```
 
-Data loading  
-Data preprocessing  
-Feature transformation (scaling + encoding)  
-Model training (Neural Network)  
-Model evaluation  
-Prediction on new sample  
+Install dependencies and run:
+
+```bash
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+Open:
+
+- App: `http://127.0.0.1:8000`
+- Swagger API: `http://127.0.0.1:8000/docs`
+- Health check: `http://127.0.0.1:8000/health`
+- Model information: `http://127.0.0.1:8000/model-info`
+
+## API request
+
+`POST /predict`
+
+```json
+{
+  "age": 35,
+  "gender": "Male",
+  "smoking_status": "Non-Smoker",
+  "medication": "Inhaler",
+  "peak_flow": 420
+}
+```
+
+The categorical text values should use the same spelling found in the training dataset. Unknown categories are accepted by the model's encoder but may reduce prediction reliability.
+
+## Deploy on Railway
+
+1. Upload all files in this folder to the root of the GitHub repository.
+2. In Railway, create a new project and select **Deploy from GitHub repo**.
+3. Select this repository and deploy it.
+4. After deployment succeeds, open **Settings → Networking → Generate Domain**.
+5. Open the generated domain or append `/docs` for Swagger.
+
+Railway uses the start command in `railway.json`:
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port $PORT
+```
+
+## Governance notes
+
+Known risks and limitations:
+
+- The model was trained on a small dataset and may not generalize.
+- `Medication` may create target leakage because medication can be prescribed after diagnosis.
+- Group fairness has not been established.
+- The model has not been clinically validated.
+- Do not submit identifiable or real patient data to a public deployment.
+
+Recommended evaluations include fairness, robustness, privacy, explainability, transparency, data quality, and target leakage analysis.
